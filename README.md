@@ -12,6 +12,13 @@ npm install
 
 * copy the .env.sample file to a file named .env and add your FaceBook ID and secret key
 
+## Database set-up
+
+```sh
+createdb ante-up
+knex migrate:latest
+```
+
 ## Development server
 
 ```sh
