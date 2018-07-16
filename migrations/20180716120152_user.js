@@ -7,7 +7,6 @@ exports.up = function(knex, Promise) {
       table.text('profilePic').notNullable();
       table.text('displayName').notNullable();
       table.text('accessToken').notNullable();
-      table.text('refreshToken').notNullable();
   });
 };
 

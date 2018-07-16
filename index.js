@@ -2,7 +2,8 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const passport = require('passport');
-require('dotenv').config();
+
+require('dotenv').config(); //loads all variables in env file to our environment
 
 const app = express();
 
@@ -10,7 +11,7 @@ const auth = require('./auth');
 
 app.use(morgan('dev'));
 app.use(cors());
-app.use(passport.initialize());
+app.use(passport.initialize()); //initialize?
 
 app.get('/', (req, res) => {
     res.json({
@@ -33,6 +34,9 @@ function errorHandling(err, req, res, next) {
         stack: err.stack
     })
 }
+
+app.use(notFound);
+app.use(errorHandling);
 
 const port = process.env.PORT || 3013;
 app.listen(port, () => {
