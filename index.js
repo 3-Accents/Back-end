@@ -7,17 +7,20 @@ require('dotenv').config(); //loads all variables in env file to our environment
 
 const app = express();
 
+const middlewares = require("./auth/middlewares");
 const auth = require('./auth');
 
 app.use(morgan('dev'));
 app.use(cors());
 app.use(express.static('public'));
 app.use(passport.initialize()); //initialize?
+app.use(middlewares.checkHeaderSetUser)
 
 app.get('/', (req, res) => {
     res.json({
-        message: ':clubs: :hearts::spades::diamonds:'
-    })
+        message: '♣ ♠ ♦ ♥',
+        user: req.user
+    });
 });
 
 app.use('/auth', auth)
