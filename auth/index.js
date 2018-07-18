@@ -5,11 +5,11 @@ const db = require('../db'); // connection to the database
 const jwt = require('jsonwebtoken');
 
 const router = express.Router();
-
+const callbackURL = process.env.NODE_ENV === 'production' ? 'https://ante-up.herokuapp.com/auth/facebook/callback' : '/auth/facebook/callback';
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "/auth/facebook/callback",
+    callbackURL,
     profileFields: ['id', 'displayName', 'photos', 'email']
   },
   function(accessToken, refreshToken, profile, callback) {
