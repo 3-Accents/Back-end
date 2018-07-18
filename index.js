@@ -11,6 +11,7 @@ const auth = require('./auth');
 
 app.use(morgan('dev'));
 app.use(cors());
+app.use(express.static('public'));
 app.use(passport.initialize()); //initialize?
 
 app.get('/', (req, res) => {

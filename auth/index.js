@@ -2,6 +2,7 @@ const passport = require('passport');
 const express = require('express');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const db = require('../db'); // connection to the database
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
@@ -36,7 +37,7 @@ passport.use(new FacebookStrategy({
             .insert(fbUser, '*')
         }
       }).then(user => {
-        callback(null, user);
+        callback(null, user[0]);
       }).catch(error => {
         callback(error);
       });
@@ -51,7 +52,22 @@ router.get('/facebook/callback', (req, res, next) => {
     if (error) {
       return next(error);
     } else {
-      res.json(user);
+      const payload = {
+        id: user.id,
+        facebookId: user.facebookId,
+        profilePic: user.profilePic,
+        displayName: user.displayName
+      };
+      jwt.sign(payload, process.env.TOKEN_SECRET, {
+        expiresIn: '1d'
+      },(err, token) => {
+        if (err){
+          next(err)
+        } else {
+          res.cookie('token', token)
+          res.redirect('/login.html')
+        }
+      });
     }
   })(req, res, next);
 });

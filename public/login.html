@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Logging In</title>
+  <style>
+    body{
+      font-family: sans-serif;
+      margin: 2em auto 0 auto;
+      width: 80%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Logging in...</h1>
+  <script>
+    if(document.cookie){
+      const token = document.cookie.split('=')[1]
+      if(token && window.opener){
+        const origin = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://anteup-app.firebaseapp.com'
+        window.opener.postMessage({token}, origin)
+        let cookieString = 'token=';
+        const expiryDate = new Date();
+        expiryDate.setTime(expiryDate.getTime() - 86400 * 1000);
+        cookieString += ';max-age=0';
+        cookieString += ';expires=' + expiryDate.toUTCString();
+        document.cookie = cookieString;
+      }
+    } 
+  </script>
+  
+</body>
+</html>
