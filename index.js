@@ -13,6 +13,7 @@ const api = require('./api');
 
 app.use(morgan('dev'));
 app.use(cors());
+app.use(express.json());
 app.use(express.static('public'));
 app.use(passport.initialize()); //initialize?
 app.use(middlewares.checkHeaderSetUser);
@@ -35,7 +36,8 @@ function notFound(req, res, next) {
 
 /* eslint-disable no-unused-vars */
 function errorHandling(err, req, res, next) {
-  res.status(res.statusCode || 500);
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  res.status(statusCode);
   res.json({
     message: err.message,
     stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
