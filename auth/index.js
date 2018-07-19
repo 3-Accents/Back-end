@@ -7,41 +7,41 @@ const jwt = require('jsonwebtoken');
 const router = express.Router();
 const callbackURL = process.env.NODE_ENV === 'production' ? 'https://ante-up.herokuapp.com/auth/facebook/callback' : '/auth/facebook/callback';
 passport.use(new FacebookStrategy({
-    clientID: process.env.FACEBOOK_APP_ID,
-    clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL,
-    profileFields: ['id', 'displayName', 'photos', 'email']
-  },
-  function(accessToken, refreshToken, profile, callback) {
-    const fbUser = {
-      facebookId: profile.id,
-      email: profile.emails[0].value,
-      profilePic: profile.photos[0].value,
-      displayName: profile.displayName,
-      accessToken,
-    };
+  clientID: process.env.FACEBOOK_APP_ID,
+  clientSecret: process.env.FACEBOOK_APP_SECRET,
+  callbackURL,
+  profileFields: ['id', 'displayName', 'photos', 'email']
+},
+function(accessToken, refreshToken, profile, callback) {
+  const fbUser = {
+    facebookId: profile.id,
+    email: profile.emails[0].value,
+    profilePic: profile.photos[0].value,
+    displayName: profile.displayName,
+    accessToken,
+  };
     // search the database for user with this facebookId
-    db('users')
-      .where('facebookId', fbUser.facebookId)
-      .first()
-      .then(user => {
-        if (user) {
-          //update user in db 
-          return db('users')
-            .where('facebookId', fbUser.facebookId)
-            .update(fbUser, '*')
+  db('users')
+    .where('facebookId', fbUser.facebookId)
+    .first()
+    .then(user => {
+      if (user) {
+        //update user in db 
+        return db('users')
+          .where('facebookId', fbUser.facebookId)
+          .update(fbUser, '*');
       
-        } else {
-          //insert user into db. knex syntax?
-          return db('users')
-            .insert(fbUser, '*')
-        }
-      }).then(user => {
-        callback(null, user[0]);
-      }).catch(error => {
-        callback(error);
-      });
-  }
+      } else {
+        //insert user into db. knex syntax?
+        return db('users')
+          .insert(fbUser, '*');
+      }
+    }).then(user => {
+      callback(null, user[0]);
+    }).catch(error => {
+      callback(error);
+    });
+}
 ));
 
 router.get('/facebook',
@@ -62,10 +62,10 @@ router.get('/facebook/callback', (req, res, next) => {
         expiresIn: '1d'
       },(err, token) => {
         if (err){
-          next(err)
+          next(err);
         } else {
-          res.cookie('token', token)
-          res.redirect('/login.html')
+          res.cookie('token', token);
+          res.redirect('/login.html');
         }
       });
     }
