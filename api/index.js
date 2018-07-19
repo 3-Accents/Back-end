@@ -26,13 +26,54 @@ router.post('/bets', (req, res, next) => {
     }).catch(next);
 });
 
-router.get('/bets', (req, res) => {
-  res.json({
-    active: [],
-    pending: [],
-    incoming: [],
-    completed: []
-  });
+router.get('/bets', (req, res, next) => {
+  db('bets')
+    .where('receiverId', req.user.id)
+    .orWhere('creatorId', req.user.id)
+    .then(bets => {
+      const categories = {
+        active: [],
+        pending: [],
+        incoming: [],
+        completed: [],
+        void: [],
+        voting: [],
+        conflicted: [],
+        myBad: []
+      };
+
+      const now = Date.now();
+      bets.forEach(bet => {
+        const betStart = +bet.startDate;
+        const betEnd = +bet.endDate;
+        if (betStart < now && !bet.receiverAccepted){
+          //void is any bet where the current date is after the start date where the receiver has not accepted it
+          categories.void.push(bet);
+        } else if (betStart < now && now < betEnd && bet.receiverAccepted) {
+          //active is any bet where the current date falls between start and end date and is accepted
+          categories.active.push(bet);
+        } else if (betStart > now && !bet.receiverAccepted) {
+          //pending is any bet where the receiver has not accepted it and the startdate is after the current date
+          categories.pending.push(bet);
+        } else if (betStart > now && bet.receiverId === req.user.id && !bet.receiverAccepted){
+          //incoming is any bet where the receiver id is equal to the current user id and they havent accepted it and the start date is after the current date
+          categories.incoming.push(bet);
+        } else if (betEnd > now && bet.receiverAccepted && bet.receiverVoteWinner && bet.creatorVoteWinner && bet.receiverVoteWinner === bet.creatorVoteWinner) {
+          //completed is any bet where is receiver has accepted and a winner has been determined and the end date has passed
+          categories.completed.push(bet);
+        } else if (betEnd > now && bet.receiverAccepted && bet.receiverVoteWinner && bet.creatorVoteWinner && bet.receiverVoteWinner !== bet.creatorVoteWinner){
+          //conflicted is any bet where the receiver is has accepted and a winner votes do not match and the end date has passed
+          categories.conflicted.push(bet);
+        } else if (betEnd > now && bet.receiverAccepted && (!bet.receiverVoteWinner || !bet.creatorVoteWinner)) {
+        //voting is any bet where the receiver has accepted, winner is undetermined, and the end date has passed
+          categories.voting.push(bet);
+        } else {
+          categories.myBad.push(bet);
+        }
+      }); 
+      res.json(categories);
+    }).catch(next);
+  
 });
 
 module.exports = router;
