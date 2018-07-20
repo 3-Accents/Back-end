@@ -111,7 +111,7 @@ router.get('/bets', (req, res, next) => {
         //Pending and incoming are always going to be broken until we have other users. 
         //Currently the creatorId and receiverId are the same and that breaks it. 
         //We cannot get anything into conflicted because there arent any other id's to vote for other than ID 1 (everything goes to voting).
-        if (betStart > now && !bet.receiverAccepted) {
+        if (betStart > now && !bet.receiverAccepted && bet.creatorId === req.user.id) {
           //pending is any bet where the receiver has not accepted it and the startdate is after the current date
           categories.pending.push(bet);
         } 
