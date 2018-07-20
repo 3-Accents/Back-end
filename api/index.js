@@ -32,6 +32,30 @@ router.get('/bets/:id', (req, res, next) => {
     }).catch(next);
 });
 
+router.post('/bets/:id/accept', (req, res, next) => {
+  db('bets')
+    .where('id', req.params.id)
+    .first()
+    .then(bet => {
+      if (bet && bet.receiverId === req.user.id) {
+        db('bets')
+          .where('id', req.params.id)
+          .update({
+            receiverAccepted: req.body.accept
+          }, '*').then((result) => {
+            console.log(result)
+            res.json({
+              message:'👍'
+            });
+          });
+      } else {
+        const error = new Error('Not Found');
+        res.status(404);
+        next(error);
+      }
+    }).catch(next);
+})
+
 router.post('/bets', (req, res, next) => {
   req.body.creatorId = req.user.id;
   db('bets')
@@ -72,7 +96,7 @@ router.get('/bets', (req, res, next) => {
           //incoming is any bet where the receiver id is equal to the current user id and they havent accepted it and the start date is after the current date
           categories.incoming.push(bet);
         } 
-        else if (betStart < now && now < betEnd && bet.receiverAccepted) {
+        else if (now < betEnd && bet.receiverAccepted) {
           //active is any bet where the current date falls between start and end date and is accepted
           categories.active.push(bet);
         } 
