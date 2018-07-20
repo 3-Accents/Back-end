@@ -45,7 +45,8 @@ function(accessToken, refreshToken, profile, callback) {
 ));
 
 router.get('/facebook',
-  passport.authenticate('facebook', { scope: ['user_friends', 'email'], authType: 'rerequest' }));
+  passport.authenticate('facebook', { scope: ['email'], authType: 'rerequest' }));
+// passport.authenticate('facebook', { scope: ['user_friends', 'email'], authType: 'rerequest' }));
 
 router.get('/facebook/callback', (req, res, next) => {
   passport.authenticate('facebook', (error, user) => {

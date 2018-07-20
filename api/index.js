@@ -42,8 +42,7 @@ router.post('/bets/:id/accept', (req, res, next) => {
           .where('id', req.params.id)
           .update({
             receiverAccepted: req.body.accept
-          }, '*').then((result) => {
-            console.log(result)
+          }).then(() => {
             res.json({
               message:'👍'
             });
@@ -54,7 +53,31 @@ router.post('/bets/:id/accept', (req, res, next) => {
         next(error);
       }
     }).catch(next);
-})
+});
+
+router.post('/bets/:id/winner', (req, res, next) => {
+  db('bets')
+    .where('id', req.params.id)
+    .first()
+    .then(bet => {
+      if (bet && (bet.receiverId === req.user.id || bet.creatorId === req.user.id)) {
+        const voteWinner = bet.receiverId === req.user.id ? 'receiverVoteWinner': 'creatorVoteWinner';
+        db('bets')
+          .where('id', req.params.id)
+          .update({
+            [voteWinner]: req.body.winner
+          }).then(() => {
+            res.json({
+              message:'🎉'
+            });
+          });
+      } else {
+        const error = new Error('Not Found');
+        res.status(404);
+        next(error);
+      }
+    }).catch(next);
+});
 
 router.post('/bets', (req, res, next) => {
   req.body.creatorId = req.user.id;
