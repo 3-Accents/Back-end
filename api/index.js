@@ -17,6 +17,29 @@ router.get('/friends', (req, res, next) => {
     }).catch(next);
 });
 
+router.get('/bets/id', (req, res, next) => {
+  db('bets')
+    .select('bets.id')
+    .where('id', bets.id)
+    .then(bet => {
+      res.json(bet[0])
+    }).catch(next)
+  }
+)
+// OR ?
+// router.get('/bets/id', (req, res, next) => {
+//   db('bets')
+//     .where({id: bets.id})
+//     .first()
+//     .select()
+//     .then(result => {
+//       result
+//     })
+//   }
+// )
+
+
+
 router.post('/bets', (req, res, next) => {
   req.body.creatorId = req.user.id;
   db('bets')
