@@ -17,28 +17,20 @@ router.get('/friends', (req, res, next) => {
     }).catch(next);
 });
 
-router.get('/bets/id', (req, res, next) => {
+router.get('/bets/:id', (req, res, next) => {
   db('bets')
-    .select('bets.id')
-    .where('id', bets.id)
+    .where('id', req.params.id)
+    .first()
     .then(bet => {
-      res.json(bet[0])
-    }).catch(next)
-  }
-)
-// OR ?
-// router.get('/bets/id', (req, res, next) => {
-//   db('bets')
-//     .where({id: bets.id})
-//     .first()
-//     .select()
-//     .then(result => {
-//       result
-//     })
-//   }
-// )
-
-
+      if (bet && (bet.receiverId === req.user.id || bet.creatorId === req.user.id)) {
+        res.json(bet);
+      } else {
+        const error = new Error('Not Found');
+        res.status(404);
+        next(error);
+      }
+    }).catch(next);
+});
 
 router.post('/bets', (req, res, next) => {
   req.body.creatorId = req.user.id;
